@@ -1,2 +1,16 @@
 prompt.txt
 .venv/
+
+# Flutter
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+
+# IDE
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
