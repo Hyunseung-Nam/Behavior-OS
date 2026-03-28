@@ -4,6 +4,25 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+
+	<!-- 알림 권한 설명 (App Store 심사 필수) -->
+	<key>NSUserNotificationUsageDescription</key>
+	<string>행동 트리거 알림을 보내기 위해 알림 권한이 필요합니다.</string>
+
+	<!-- 백그라운드 모드: Nagging 재스케줄링 + 알림 수신 -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+		<string>processing</string>
+	</array>
+
+	<!-- flutter_local_notifications: 앱 포어그라운드 알림 표시 허용 -->
+	<key>UIUserNotificationSettings</key>
+	<dict>
+		<key>types</key>
+		<integer>7</integer>
+	</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

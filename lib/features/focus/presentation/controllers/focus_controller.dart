@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/providers/repository_providers.dart';
 import '../../../schedule/domain/entities/schedule_entity.dart';
 import '../../../schedule/domain/repositories/schedule_repository.dart';
 
@@ -67,7 +68,3 @@ class FocusController extends _$FocusController {
   }
 }
 
-// Provider 선언 (임시 - 실제 구현체로 교체 필요)
-final scheduleRepositoryProvider = Provider<ScheduleRepository>((ref) {
-  throw UnimplementedError('ScheduleRepositoryImpl 등록 필요');
-});
