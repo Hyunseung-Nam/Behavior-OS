@@ -22,7 +22,6 @@ dependencies:
 
   # 타임존 (알람 정확도 핵심)
   timezone: ^0.9.4
-  flutter_timezone: ^2.0.0
 
   # Supabase
   supabase_flutter: ^2.5.6
