@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import 'features/focus/presentation/pages/focus_page.dart';
+import 'core/router/app_router.dart';
 
-final _router = GoRouter(
-  initialLocation: '/',
-  routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const FocusPage(),
-    ),
-  ],
-);
-
+/// 루트 위젯
+///
+/// 역할: 앱 전체 테마·라우터 설정.
+/// 책임: appRouterProvider를 통해 GoRouter 인스턴스 수신.
+/// 외부 의존성: appRouterProvider (인증 상태에 따라 자동 리다이렉트 포함)
 class BehaviorOSApp extends ConsumerWidget {
   const BehaviorOSApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
+
     return MaterialApp.router(
       title: 'Behavior OS',
       debugShowCheckedModeBanner: false,
@@ -31,7 +27,7 @@ class BehaviorOSApp extends ConsumerWidget {
         ),
         useMaterial3: true,
       ),
-      routerConfig: _router,
+      routerConfig: router,
     );
   }
 }

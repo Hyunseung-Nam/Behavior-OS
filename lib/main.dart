@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -25,11 +26,14 @@ Future<void> main() async {
   // 2. 로컬 알림 초기화
   await NotificationService.instance.initialize();
 
-  // 3. Workmanager 초기화
-  await Workmanager().initialize(
-    BackgroundService.callbackDispatcher,
-    isInDebugMode: false,
-  );
+  // 3. Workmanager 초기화 (iOS/Android 전용)
+  if (defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android) {
+    await Workmanager().initialize(
+      BackgroundService.callbackDispatcher,
+      isInDebugMode: false,
+    );
+  }
 
   runApp(
     const ProviderScope(

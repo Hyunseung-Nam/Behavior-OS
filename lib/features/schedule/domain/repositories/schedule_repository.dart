@@ -15,6 +15,9 @@ abstract class ScheduleRepository {
   Future<ScheduleEntity> createSchedule({
     required String title,
     String? description,
+    String? why,
+    String? minimumAction,
+    required ScheduleCategory category,
     required DateTime scheduledAt,
   });
 
@@ -33,4 +36,10 @@ abstract class ScheduleRepository {
 
   /// 일정 삭제 + 관련 알림 전부 취소
   Future<void> deleteSchedule(String id);
+
+  /// pending/active/snoozed 상태 일정을 현재 시간 기준으로 동기화
+  ///
+  /// - pending → active: scheduledAt 도래 시
+  /// - pending/active/snoozed → missed: scheduledAt + 60분 초과 시
+  Future<void> syncStatuses();
 }

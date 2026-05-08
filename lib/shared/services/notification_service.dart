@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -43,13 +44,13 @@ class NotificationService {
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
-      requestCriticalPermission: true, // 방해 금지 모드에서도 알림
     );
 
     final result = await _plugin.initialize(
       const InitializationSettings(
         android: androidSettings,
         iOS: iosSettings,
+        macOS: iosSettings,
       ),
       onDidReceiveNotificationResponse: _onNotificationTapped,
       onDidReceiveBackgroundNotificationResponse: _onBackgroundTapped,
@@ -79,7 +80,6 @@ class NotificationService {
           alert: true,
           badge: true,
           sound: true,
-          critical: true,
         );
 
     _initialized = result ?? false;
@@ -99,6 +99,7 @@ class NotificationService {
   /// Returns: Future<void>
   /// Side Effects: 최대 15개의 로컬 알림 등록
   Future<void> scheduleAll(ScheduleEntity schedule) async {
+    if (defaultTargetPlatform == TargetPlatform.macOS) return;
     final now = tz.TZDateTime.now(tz.local);
 
     // T-30분 인지 알림
@@ -149,6 +150,7 @@ class NotificationService {
   /// Args:
   ///   scheduleId: 취소할 일정 ID
   Future<void> cancelAll(String scheduleId) async {
+    if (defaultTargetPlatform == TargetPlatform.macOS) return;
     final ids = [
       _id(scheduleId, 0),
       _id(scheduleId, 1),
@@ -166,6 +168,7 @@ class NotificationService {
   /// Args:
   ///   scheduleId: 대상 일정 ID
   Future<void> cancelNagging(String scheduleId) async {
+    if (defaultTargetPlatform == TargetPlatform.macOS) return;
     for (int i = 1; i <= AppConstants.maxPrescheduledNagging; i++) {
       await _plugin.cancel(_id(scheduleId, 10 + i));
     }

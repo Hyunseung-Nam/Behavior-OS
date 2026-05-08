@@ -20,6 +20,15 @@ mixin _$ScheduleEntity {
   String get userId => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
+
+  /// 이게 왜 중요한가 (선택 입력, FocusPage + 알림에 표시)
+  String? get why => throw _privateConstructorUsedError;
+
+  /// 최소한 이것만 (선택 입력, FocusPage에서 시작 마찰 감소)
+  String? get minimumAction => throw _privateConstructorUsedError;
+
+  /// 카테고리 (FocusPage 포인트 컬러 결정)
+  ScheduleCategory get category => throw _privateConstructorUsedError;
   DateTime get scheduledAt => throw _privateConstructorUsedError;
   ScheduleStatus get status => throw _privateConstructorUsedError;
   int get naggingCount => throw _privateConstructorUsedError;
@@ -46,6 +55,9 @@ abstract class $ScheduleEntityCopyWith<$Res> {
       String userId,
       String title,
       String? description,
+      String? why,
+      String? minimumAction,
+      ScheduleCategory category,
       DateTime scheduledAt,
       ScheduleStatus status,
       int naggingCount,
@@ -74,6 +86,9 @@ class _$ScheduleEntityCopyWithImpl<$Res, $Val extends ScheduleEntity>
     Object? userId = null,
     Object? title = null,
     Object? description = freezed,
+    Object? why = freezed,
+    Object? minimumAction = freezed,
+    Object? category = null,
     Object? scheduledAt = null,
     Object? status = null,
     Object? naggingCount = null,
@@ -99,6 +114,18 @@ class _$ScheduleEntityCopyWithImpl<$Res, $Val extends ScheduleEntity>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
+      why: freezed == why
+          ? _value.why
+          : why // ignore: cast_nullable_to_non_nullable
+              as String?,
+      minimumAction: freezed == minimumAction
+          ? _value.minimumAction
+          : minimumAction // ignore: cast_nullable_to_non_nullable
+              as String?,
+      category: null == category
+          ? _value.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as ScheduleCategory,
       scheduledAt: null == scheduledAt
           ? _value.scheduledAt
           : scheduledAt // ignore: cast_nullable_to_non_nullable
@@ -144,6 +171,9 @@ abstract class _$$ScheduleEntityImplCopyWith<$Res>
       String userId,
       String title,
       String? description,
+      String? why,
+      String? minimumAction,
+      ScheduleCategory category,
       DateTime scheduledAt,
       ScheduleStatus status,
       int naggingCount,
@@ -170,6 +200,9 @@ class __$$ScheduleEntityImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? title = null,
     Object? description = freezed,
+    Object? why = freezed,
+    Object? minimumAction = freezed,
+    Object? category = null,
     Object? scheduledAt = null,
     Object? status = null,
     Object? naggingCount = null,
@@ -195,6 +228,18 @@ class __$$ScheduleEntityImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
+      why: freezed == why
+          ? _value.why
+          : why // ignore: cast_nullable_to_non_nullable
+              as String?,
+      minimumAction: freezed == minimumAction
+          ? _value.minimumAction
+          : minimumAction // ignore: cast_nullable_to_non_nullable
+              as String?,
+      category: null == category
+          ? _value.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as ScheduleCategory,
       scheduledAt: null == scheduledAt
           ? _value.scheduledAt
           : scheduledAt // ignore: cast_nullable_to_non_nullable
@@ -235,6 +280,9 @@ class _$ScheduleEntityImpl extends _ScheduleEntity {
       required this.userId,
       required this.title,
       this.description,
+      this.why,
+      this.minimumAction,
+      this.category = ScheduleCategory.other,
       required this.scheduledAt,
       this.status = ScheduleStatus.pending,
       this.naggingCount = 0,
@@ -252,6 +300,19 @@ class _$ScheduleEntityImpl extends _ScheduleEntity {
   final String title;
   @override
   final String? description;
+
+  /// 이게 왜 중요한가 (선택 입력, FocusPage + 알림에 표시)
+  @override
+  final String? why;
+
+  /// 최소한 이것만 (선택 입력, FocusPage에서 시작 마찰 감소)
+  @override
+  final String? minimumAction;
+
+  /// 카테고리 (FocusPage 포인트 컬러 결정)
+  @override
+  @JsonKey()
+  final ScheduleCategory category;
   @override
   final DateTime scheduledAt;
   @override
@@ -271,7 +332,7 @@ class _$ScheduleEntityImpl extends _ScheduleEntity {
 
   @override
   String toString() {
-    return 'ScheduleEntity(id: $id, userId: $userId, title: $title, description: $description, scheduledAt: $scheduledAt, status: $status, naggingCount: $naggingCount, snoozedUntil: $snoozedUntil, completedAt: $completedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ScheduleEntity(id: $id, userId: $userId, title: $title, description: $description, why: $why, minimumAction: $minimumAction, category: $category, scheduledAt: $scheduledAt, status: $status, naggingCount: $naggingCount, snoozedUntil: $snoozedUntil, completedAt: $completedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -284,6 +345,11 @@ class _$ScheduleEntityImpl extends _ScheduleEntity {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
+            (identical(other.why, why) || other.why == why) &&
+            (identical(other.minimumAction, minimumAction) ||
+                other.minimumAction == minimumAction) &&
+            (identical(other.category, category) ||
+                other.category == category) &&
             (identical(other.scheduledAt, scheduledAt) ||
                 other.scheduledAt == scheduledAt) &&
             (identical(other.status, status) || other.status == status) &&
@@ -306,6 +372,9 @@ class _$ScheduleEntityImpl extends _ScheduleEntity {
       userId,
       title,
       description,
+      why,
+      minimumAction,
+      category,
       scheduledAt,
       status,
       naggingCount,
@@ -330,6 +399,9 @@ abstract class _ScheduleEntity extends ScheduleEntity {
       required final String userId,
       required final String title,
       final String? description,
+      final String? why,
+      final String? minimumAction,
+      final ScheduleCategory category,
       required final DateTime scheduledAt,
       final ScheduleStatus status,
       final int naggingCount,
@@ -347,6 +419,18 @@ abstract class _ScheduleEntity extends ScheduleEntity {
   String get title;
   @override
   String? get description;
+
+  /// 이게 왜 중요한가 (선택 입력, FocusPage + 알림에 표시)
+  @override
+  String? get why;
+
+  /// 최소한 이것만 (선택 입력, FocusPage에서 시작 마찰 감소)
+  @override
+  String? get minimumAction;
+
+  /// 카테고리 (FocusPage 포인트 컬러 결정)
+  @override
+  ScheduleCategory get category;
   @override
   DateTime get scheduledAt;
   @override

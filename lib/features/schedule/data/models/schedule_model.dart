@@ -15,6 +15,9 @@ class ScheduleModel with _$ScheduleModel {
     @JsonKey(name: 'user_id') required String userId,
     required String title,
     String? description,
+    String? why,
+    @JsonKey(name: 'minimum_action') String? minimumAction,
+    @Default('other') String category,
     @JsonKey(name: 'scheduled_at') required DateTime scheduledAt,
     @Default('pending') String status,
     @JsonKey(name: 'nagging_count') @Default(0) int naggingCount,
@@ -29,12 +32,18 @@ class ScheduleModel with _$ScheduleModel {
   factory ScheduleModel.fromJson(Map<String, dynamic> json) =>
       _$ScheduleModelFromJson(json);
 
-  /// Supabase Row → Domain Entity 변환
+  /// DB Row → Domain Entity 변환
   ScheduleEntity toEntity() => ScheduleEntity(
         id: id,
         userId: userId,
         title: title,
         description: description,
+        why: why,
+        minimumAction: minimumAction,
+        category: ScheduleCategory.values.firstWhere(
+          (c) => c.name == category,
+          orElse: () => ScheduleCategory.other,
+        ),
         scheduledAt: scheduledAt,
         status: ScheduleStatus.values.firstWhere(
           (s) => s.name == status,
@@ -46,19 +55,4 @@ class ScheduleModel with _$ScheduleModel {
         createdAt: createdAt,
         updatedAt: updatedAt,
       );
-
-  /// Domain Entity → Supabase Insert Map 변환
-  static Map<String, dynamic> fromEntity(ScheduleEntity entity) => {
-        'id': entity.id,
-        'user_id': entity.userId,
-        'title': entity.title,
-        if (entity.description != null) 'description': entity.description,
-        'scheduled_at': entity.scheduledAt.toIso8601String(),
-        'status': entity.status.name,
-        'nagging_count': entity.naggingCount,
-        if (entity.snoozedUntil != null)
-          'snoozed_until': entity.snoozedUntil!.toIso8601String(),
-        if (entity.completedAt != null)
-          'completed_at': entity.completedAt!.toIso8601String(),
-      };
 }

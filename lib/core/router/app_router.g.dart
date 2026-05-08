@@ -6,15 +6,16 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appRouterHash() => r'334d2e1050771668dd8772fb8de795be8b1ce5e2';
+String _$appRouterHash() => r'84c45b43d53d3581ea69e2200320076627cc71a2';
 
 /// 라우터 설정
 ///
-/// 역할: 알림 탭 시 딥링크로 Focus 화면 직행 지원
+/// 역할: 알림 탭 시 딥링크로 Focus 화면 직행 지원.
 /// 경로:
 ///   /          → FocusPage (메인, 지금 해야 할 단 1개)
 ///   /schedule  → 일정 목록/등록
 ///   /missed    → 놓친 일정 보관함
+///   /focus/:id → 알림 딥링크 (FocusPage)
 ///
 /// Copied from [appRouter].
 @ProviderFor(appRouter)

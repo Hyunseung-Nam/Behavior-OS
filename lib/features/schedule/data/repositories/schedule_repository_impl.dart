@@ -1,231 +1,225 @@
-import 'dart:async';
-import 'dart:convert';
-
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../domain/entities/schedule_entity.dart';
-import '../../domain/repositories/schedule_repository.dart';
+import '../../../../shared/database/app_database.dart';
 import '../../../../shared/services/notification_service.dart';
 import '../../../../shared/services/background_service.dart';
+import '../../domain/entities/schedule_entity.dart';
+import '../../domain/repositories/schedule_repository.dart';
 
-/// 일정 Repository 구현체 (로컬 우선)
+/// 일정 Repository 구현체 (Drift SQLite)
 ///
-/// 역할: SharedPreferences 기반 로컬 저장소 + 알림 서비스 연동.
+/// 역할: Drift 기반 로컬 SQLite 저장소 + 알림 서비스 연동.
 /// 책임:
-///   - 일정 CRUD
+///   - 일정 CRUD (Drift ORM)
 ///   - 생성 시 NotificationService.scheduleAll() 호출
 ///   - 완료/연기 시 알림 취소 및 재스케줄
 ///   - Workmanager Nagging 작업 등록/취소
-/// 외부 의존성: SharedPreferences, NotificationService, BackgroundService
-///
-/// 참고: 추후 Drift(SQLite) + Supabase로 교체 예정. 인터페이스는 동일.
+/// 외부 의존성: AppDatabase, NotificationService, BackgroundService
 class ScheduleRepositoryImpl implements ScheduleRepository {
-  static const _storageKey = 'schedules';
+  ScheduleRepositoryImpl(this._db);
+
+  final AppDatabase _db;
   final _uuid = const Uuid();
 
-  // 인메모리 스트림 컨트롤러 (SharedPreferences 변경 시 broadcast)
-  final _controller =
-      StreamController<List<ScheduleEntity>>.broadcast();
-
-  ScheduleRepositoryImpl() {
-    _loadAndBroadcast();
-  }
+  // ─────────────────────────────────────────
+  // 조회
+  // ─────────────────────────────────────────
 
   @override
-  Stream<List<ScheduleEntity>> watchSchedules() => _controller.stream;
+  Stream<List<ScheduleEntity>> watchSchedules() {
+    return (_db.select(_db.scheduleTable)
+          ..orderBy([(t) => OrderingTerm.asc(t.scheduledAt)]))
+        .watch()
+        .map((rows) => rows.map(_toEntity).toList());
+  }
 
   @override
   Future<ScheduleEntity?> getSchedule(String id) async {
-    final all = await _loadAll();
-    try {
-      return all.firstWhere((s) => s.id == id);
-    } catch (_) {
-      return null;
-    }
+    final row = await (_db.select(_db.scheduleTable)
+          ..where((t) => t.id.equals(id)))
+        .getSingleOrNull();
+    return row != null ? _toEntity(row) : null;
   }
+
+  @override
+  Future<List<ScheduleEntity>> getMissedSchedules() async {
+    final rows = await (_db.select(_db.scheduleTable)
+          ..where((t) => t.status.equals(ScheduleStatus.missed.name)))
+        .get();
+    return rows.map(_toEntity).toList();
+  }
+
+  // ─────────────────────────────────────────
+  // 쓰기
+  // ─────────────────────────────────────────
 
   @override
   Future<ScheduleEntity> createSchedule({
     required String title,
     String? description,
+    String? why,
+    String? minimumAction,
+    required ScheduleCategory category,
     required DateTime scheduledAt,
   }) async {
     final now = DateTime.now();
-    final schedule = ScheduleEntity(
-      id: _uuid.v4(),
-      userId: 'local',
-      title: title,
-      description: description,
-      scheduledAt: scheduledAt,
-      status: ScheduleStatus.pending,
-      createdAt: now,
-      updatedAt: now,
-    );
+    final id = _uuid.v4();
 
-    final all = await _loadAll();
-    all.add(schedule);
-    await _saveAll(all);
+    await _db.into(_db.scheduleTable).insert(
+          ScheduleTableCompanion.insert(
+            id: id,
+            userId: 'local',
+            title: title,
+            description: Value(description),
+            why: Value(why),
+            minimumAction: Value(minimumAction),
+            category: Value(category.name),
+            scheduledAt: scheduledAt,
+            status: const Value('pending'),
+            naggingCount: const Value(0),
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+
+    final entity = (await getSchedule(id))!;
 
     // 다단계 알림 + Nagging 스케줄링
-    await NotificationService.instance.scheduleAll(schedule);
+    await NotificationService.instance.scheduleAll(entity);
 
     // 60분 후 Workmanager 백그라운드 체크 등록
-    await BackgroundService.registerNaggingTask(scheduleId: schedule.id);
+    await BackgroundService.registerNaggingTask(scheduleId: id);
 
-    _broadcast(all);
-    return schedule;
+    return entity;
   }
 
   @override
   Future<void> completeSchedule(String id) async {
-    final all = await _loadAll();
-    final idx = all.indexWhere((s) => s.id == id);
-    if (idx == -1) return;
+    final now = DateTime.now();
+    await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(id)))
+        .write(ScheduleTableCompanion(
+      status: const Value('completed'),
+      completedAt: Value(now),
+      updatedAt: Value(now),
+    ));
 
-    all[idx] = all[idx].copyWith(
-      status: ScheduleStatus.completed,
-      completedAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-    await _saveAll(all);
-
-    // 모든 알림 취소
     await NotificationService.instance.cancelAll(id);
     await BackgroundService.cancelNaggingTask(id);
-
-    _broadcast(all);
   }
 
   @override
   Future<void> snoozeSchedule(String id) async {
-    final all = await _loadAll();
-    final idx = all.indexWhere((s) => s.id == id);
-    if (idx == -1) return;
-
     final snoozedUntil = DateTime.now().add(const Duration(minutes: 10));
-    all[idx] = all[idx].copyWith(
-      status: ScheduleStatus.snoozed,
-      snoozedUntil: snoozedUntil,
-      updatedAt: DateTime.now(),
-    );
-    await _saveAll(all);
+    await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(id)))
+        .write(ScheduleTableCompanion(
+      status: const Value('snoozed'),
+      snoozedUntil: Value(snoozedUntil),
+      updatedAt: Value(DateTime.now()),
+    ));
 
-    // Nagging 취소 + 10분 후 재트리거 등록
+    final entity = await getSchedule(id);
+    if (entity == null) return;
+
     await NotificationService.instance.cancelNagging(id);
     await NotificationService.instance.scheduleSnoozeReminder(
       scheduleId: id,
-      title: all[idx].title,
+      title: entity.title,
     );
-
-    _broadcast(all);
-  }
-
-  @override
-  Future<List<ScheduleEntity>> getMissedSchedules() async {
-    final all = await _loadAll();
-    return all.where((s) => s.status == ScheduleStatus.missed).toList();
   }
 
   @override
   Future<ScheduleEntity> rescheduleSchedule(
       String id, DateTime newScheduledAt) async {
-    final all = await _loadAll();
-    final idx = all.indexWhere((s) => s.id == id);
-    if (idx == -1) throw Exception('일정을 찾을 수 없습니다: $id');
+    await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(id)))
+        .write(ScheduleTableCompanion(
+      scheduledAt: Value(newScheduledAt),
+      status: const Value('pending'),
+      naggingCount: const Value(0),
+      snoozedUntil: const Value(null),
+      updatedAt: Value(DateTime.now()),
+    ));
 
-    all[idx] = all[idx].copyWith(
-      scheduledAt: newScheduledAt,
-      status: ScheduleStatus.pending,
-      naggingCount: 0,
-      snoozedUntil: null,
-      updatedAt: DateTime.now(),
-    );
-    await _saveAll(all);
+    final entity = (await getSchedule(id))!;
 
-    // 새 시간으로 알림 재등록
     await NotificationService.instance.cancelAll(id);
-    await NotificationService.instance.scheduleAll(all[idx]);
+    await NotificationService.instance.scheduleAll(entity);
     await BackgroundService.registerNaggingTask(scheduleId: id);
 
-    _broadcast(all);
-    return all[idx];
+    return entity;
   }
 
   @override
   Future<void> deleteSchedule(String id) async {
-    final all = await _loadAll();
-    all.removeWhere((s) => s.id == id);
-    await _saveAll(all);
+    await (_db.delete(_db.scheduleTable)..where((t) => t.id.equals(id))).go();
 
     await NotificationService.instance.cancelAll(id);
     await BackgroundService.cancelNaggingTask(id);
+  }
 
-    _broadcast(all);
+  @override
+  Future<void> syncStatuses() async {
+    final now = DateTime.now();
+    final rows = await (_db.select(_db.scheduleTable)
+          ..where((t) =>
+              t.status.equals(ScheduleStatus.pending.name) |
+              t.status.equals(ScheduleStatus.active.name) |
+              t.status.equals(ScheduleStatus.snoozed.name)))
+        .get();
+
+    for (final row in rows) {
+      final entity = _toEntity(row);
+
+      if (entity.isMissed(now)) {
+        await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(row.id)))
+            .write(ScheduleTableCompanion(
+          status: const Value('missed'),
+          updatedAt: Value(now),
+        ));
+        await NotificationService.instance.cancelAll(row.id);
+      } else if (entity.status == ScheduleStatus.pending &&
+          now.isAfter(entity.scheduledAt)) {
+        await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(row.id)))
+            .write(ScheduleTableCompanion(
+          status: const Value('active'),
+          updatedAt: Value(now),
+        ));
+      }
+    }
   }
 
   // ─────────────────────────────────────────
-  // Private helpers
+  // 변환 헬퍼
   // ─────────────────────────────────────────
 
-  Future<List<ScheduleEntity>> _loadAll() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getStringList(_storageKey) ?? [];
-    return raw
-        .map((e) => _fromJson(jsonDecode(e) as Map<String, dynamic>))
-        .toList();
-  }
-
-  Future<void> _saveAll(List<ScheduleEntity> schedules) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      _storageKey,
-      schedules.map((s) => jsonEncode(_toJson(s))).toList(),
+  /// DB 행 → 도메인 엔티티 변환
+  ///
+  /// Args:
+  ///   row: Drift가 반환한 ScheduleTableData
+  /// Returns: ScheduleEntity
+  ScheduleEntity _toEntity(ScheduleTableData row) {
+    return ScheduleEntity(
+      id: row.id,
+      userId: row.userId,
+      title: row.title,
+      description: row.description,
+      why: row.why,
+      minimumAction: row.minimumAction,
+      category: ScheduleCategory.values.firstWhere(
+        (c) => c.name == row.category,
+        orElse: () => ScheduleCategory.other,
+      ),
+      scheduledAt: row.scheduledAt,
+      status: ScheduleStatus.values.firstWhere(
+        (s) => s.name == row.status,
+        orElse: () => ScheduleStatus.pending,
+      ),
+      naggingCount: row.naggingCount,
+      snoozedUntil: row.snoozedUntil,
+      completedAt: row.completedAt,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     );
   }
 
-  void _broadcast(List<ScheduleEntity> schedules) {
-    _controller.add(schedules);
-  }
-
-  Future<void> _loadAndBroadcast() async {
-    final all = await _loadAll();
-    _broadcast(all);
-  }
-
-  Map<String, dynamic> _toJson(ScheduleEntity s) => {
-        'id': s.id,
-        'userId': s.userId,
-        'title': s.title,
-        'description': s.description,
-        'scheduledAt': s.scheduledAt.toIso8601String(),
-        'status': s.status.name,
-        'naggingCount': s.naggingCount,
-        'snoozedUntil': s.snoozedUntil?.toIso8601String(),
-        'completedAt': s.completedAt?.toIso8601String(),
-        'createdAt': s.createdAt.toIso8601String(),
-        'updatedAt': s.updatedAt.toIso8601String(),
-      };
-
-  ScheduleEntity _fromJson(Map<String, dynamic> j) => ScheduleEntity(
-        id: j['id'] as String,
-        userId: j['userId'] as String,
-        title: j['title'] as String,
-        description: j['description'] as String?,
-        scheduledAt: DateTime.parse(j['scheduledAt'] as String),
-        status: ScheduleStatus.values.firstWhere(
-          (s) => s.name == j['status'],
-          orElse: () => ScheduleStatus.pending,
-        ),
-        naggingCount: j['naggingCount'] as int,
-        snoozedUntil: j['snoozedUntil'] != null
-            ? DateTime.parse(j['snoozedUntil'] as String)
-            : null,
-        completedAt: j['completedAt'] != null
-            ? DateTime.parse(j['completedAt'] as String)
-            : null,
-        createdAt: DateTime.parse(j['createdAt'] as String),
-        updatedAt: DateTime.parse(j['updatedAt'] as String),
-      );
 }
-

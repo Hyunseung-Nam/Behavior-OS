@@ -1,6 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:workmanager/workmanager.dart';
 
 import '../../core/constants/app_constants.dart';
+
+bool get _workmanagerSupported =>
+    defaultTargetPlatform == TargetPlatform.iOS ||
+    defaultTargetPlatform == TargetPlatform.android;
 
 /// 백그라운드 서비스
 ///
@@ -47,6 +52,7 @@ class BackgroundService {
     required String scheduleId,
     int delayMinutes = 65,
   }) async {
+    if (!_workmanagerSupported) return;
     await Workmanager().registerOneOffTask(
       '${AppConstants.naggingTaskName}_$scheduleId',
       AppConstants.naggingTaskName,
@@ -65,6 +71,7 @@ class BackgroundService {
   /// Args:
   ///   scheduleId: 취소할 일정 ID
   static Future<void> cancelNaggingTask(String scheduleId) async {
+    if (!_workmanagerSupported) return;
     await Workmanager().cancelByUniqueName(
       '${AppConstants.naggingTaskName}_$scheduleId',
     );

@@ -1,14 +1,7 @@
 /// 앱 전역 상수
 ///
 /// 역할: 하드코딩 방지. 모든 고정값은 여기서 관리.
-/// 주의: supabaseUrl, supabaseAnonKey는 .env 또는 --dart-define으로 주입할 것.
 abstract class AppConstants {
-  // Supabase - dart-define으로 주입: --dart-define=SUPABASE_URL=xxx
-  static const String supabaseUrl =
-      String.fromEnvironment('SUPABASE_URL', defaultValue: '');
-  static const String supabaseAnonKey =
-      String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
-
   // 알림 채널
   static const String notificationChannelId = 'behavior_os_channel';
   static const String notificationChannelName = '행동 트리거';

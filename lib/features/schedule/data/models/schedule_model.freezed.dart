@@ -25,6 +25,10 @@ mixin _$ScheduleModel {
   String get userId => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
+  String? get why => throw _privateConstructorUsedError;
+  @JsonKey(name: 'minimum_action')
+  String? get minimumAction => throw _privateConstructorUsedError;
+  String get category => throw _privateConstructorUsedError;
   @JsonKey(name: 'scheduled_at')
   DateTime get scheduledAt => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
@@ -60,6 +64,9 @@ abstract class $ScheduleModelCopyWith<$Res> {
       @JsonKey(name: 'user_id') String userId,
       String title,
       String? description,
+      String? why,
+      @JsonKey(name: 'minimum_action') String? minimumAction,
+      String category,
       @JsonKey(name: 'scheduled_at') DateTime scheduledAt,
       String status,
       @JsonKey(name: 'nagging_count') int naggingCount,
@@ -88,6 +95,9 @@ class _$ScheduleModelCopyWithImpl<$Res, $Val extends ScheduleModel>
     Object? userId = null,
     Object? title = null,
     Object? description = freezed,
+    Object? why = freezed,
+    Object? minimumAction = freezed,
+    Object? category = null,
     Object? scheduledAt = null,
     Object? status = null,
     Object? naggingCount = null,
@@ -113,6 +123,18 @@ class _$ScheduleModelCopyWithImpl<$Res, $Val extends ScheduleModel>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
+      why: freezed == why
+          ? _value.why
+          : why // ignore: cast_nullable_to_non_nullable
+              as String?,
+      minimumAction: freezed == minimumAction
+          ? _value.minimumAction
+          : minimumAction // ignore: cast_nullable_to_non_nullable
+              as String?,
+      category: null == category
+          ? _value.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as String,
       scheduledAt: null == scheduledAt
           ? _value.scheduledAt
           : scheduledAt // ignore: cast_nullable_to_non_nullable
@@ -158,6 +180,9 @@ abstract class _$$ScheduleModelImplCopyWith<$Res>
       @JsonKey(name: 'user_id') String userId,
       String title,
       String? description,
+      String? why,
+      @JsonKey(name: 'minimum_action') String? minimumAction,
+      String category,
       @JsonKey(name: 'scheduled_at') DateTime scheduledAt,
       String status,
       @JsonKey(name: 'nagging_count') int naggingCount,
@@ -184,6 +209,9 @@ class __$$ScheduleModelImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? title = null,
     Object? description = freezed,
+    Object? why = freezed,
+    Object? minimumAction = freezed,
+    Object? category = null,
     Object? scheduledAt = null,
     Object? status = null,
     Object? naggingCount = null,
@@ -209,6 +237,18 @@ class __$$ScheduleModelImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
+      why: freezed == why
+          ? _value.why
+          : why // ignore: cast_nullable_to_non_nullable
+              as String?,
+      minimumAction: freezed == minimumAction
+          ? _value.minimumAction
+          : minimumAction // ignore: cast_nullable_to_non_nullable
+              as String?,
+      category: null == category
+          ? _value.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as String,
       scheduledAt: null == scheduledAt
           ? _value.scheduledAt
           : scheduledAt // ignore: cast_nullable_to_non_nullable
@@ -249,6 +289,9 @@ class _$ScheduleModelImpl extends _ScheduleModel {
       @JsonKey(name: 'user_id') required this.userId,
       required this.title,
       this.description,
+      this.why,
+      @JsonKey(name: 'minimum_action') this.minimumAction,
+      this.category = 'other',
       @JsonKey(name: 'scheduled_at') required this.scheduledAt,
       this.status = 'pending',
       @JsonKey(name: 'nagging_count') this.naggingCount = 0,
@@ -270,6 +313,14 @@ class _$ScheduleModelImpl extends _ScheduleModel {
   final String title;
   @override
   final String? description;
+  @override
+  final String? why;
+  @override
+  @JsonKey(name: 'minimum_action')
+  final String? minimumAction;
+  @override
+  @JsonKey()
+  final String category;
   @override
   @JsonKey(name: 'scheduled_at')
   final DateTime scheduledAt;
@@ -294,7 +345,7 @@ class _$ScheduleModelImpl extends _ScheduleModel {
 
   @override
   String toString() {
-    return 'ScheduleModel(id: $id, userId: $userId, title: $title, description: $description, scheduledAt: $scheduledAt, status: $status, naggingCount: $naggingCount, snoozedUntil: $snoozedUntil, completedAt: $completedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ScheduleModel(id: $id, userId: $userId, title: $title, description: $description, why: $why, minimumAction: $minimumAction, category: $category, scheduledAt: $scheduledAt, status: $status, naggingCount: $naggingCount, snoozedUntil: $snoozedUntil, completedAt: $completedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -307,6 +358,11 @@ class _$ScheduleModelImpl extends _ScheduleModel {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
+            (identical(other.why, why) || other.why == why) &&
+            (identical(other.minimumAction, minimumAction) ||
+                other.minimumAction == minimumAction) &&
+            (identical(other.category, category) ||
+                other.category == category) &&
             (identical(other.scheduledAt, scheduledAt) ||
                 other.scheduledAt == scheduledAt) &&
             (identical(other.status, status) || other.status == status) &&
@@ -330,6 +386,9 @@ class _$ScheduleModelImpl extends _ScheduleModel {
       userId,
       title,
       description,
+      why,
+      minimumAction,
+      category,
       scheduledAt,
       status,
       naggingCount,
@@ -360,6 +419,9 @@ abstract class _ScheduleModel extends ScheduleModel {
           @JsonKey(name: 'user_id') required final String userId,
           required final String title,
           final String? description,
+          final String? why,
+          @JsonKey(name: 'minimum_action') final String? minimumAction,
+          final String category,
           @JsonKey(name: 'scheduled_at') required final DateTime scheduledAt,
           final String status,
           @JsonKey(name: 'nagging_count') final int naggingCount,
@@ -382,6 +444,13 @@ abstract class _ScheduleModel extends ScheduleModel {
   String get title;
   @override
   String? get description;
+  @override
+  String? get why;
+  @override
+  @JsonKey(name: 'minimum_action')
+  String? get minimumAction;
+  @override
+  String get category;
   @override
   @JsonKey(name: 'scheduled_at')
   DateTime get scheduledAt;
