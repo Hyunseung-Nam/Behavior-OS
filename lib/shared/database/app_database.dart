@@ -21,6 +21,7 @@ class ScheduleTable extends Table {
   IntColumn get naggingCount => integer().withDefault(const Constant(0))();
   DateTimeColumn get snoozedUntil => dateTime().nullable()();
   DateTimeColumn get completedAt => dateTime().nullable()();
+  TextColumn get calendarEventId => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -38,7 +39,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -47,6 +48,10 @@ class AppDatabase extends _$AppDatabase {
         await migrator.addColumn(scheduleTable, scheduleTable.why);
         await migrator.addColumn(scheduleTable, scheduleTable.minimumAction);
         await migrator.addColumn(scheduleTable, scheduleTable.category);
+      }
+      if (from < 3) {
+        await migrator.addColumn(
+            scheduleTable, scheduleTable.calendarEventId);
       }
     },
   );

@@ -9,6 +9,12 @@
 	<key>NSUserNotificationUsageDescription</key>
 	<string>행동 트리거 알림을 보내기 위해 알림 권한이 필요합니다.</string>
 
+	<!-- 캘린더 권한 설명 -->
+	<key>NSCalendarsUsageDescription</key>
+	<string>등록한 일정을 iOS 캘린더에 추가하여 다른 일정과 겹치는지 확인할 수 있습니다.</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>등록한 일정을 iOS 캘린더에 추가하여 다른 일정과 겹치는지 확인할 수 있습니다.</string>
+
 	<!-- 백그라운드 모드: Nagging 재스케줄링 + 알림 수신 -->
 	<key>UIBackgroundModes</key>
 	<array>

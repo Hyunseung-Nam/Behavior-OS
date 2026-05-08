@@ -46,6 +46,8 @@ class ScheduleEntity with _$ScheduleEntity {
     @Default(0) int naggingCount,
     DateTime? snoozedUntil,
     DateTime? completedAt,
+    /// iOS 캘린더 이벤트 ID (캘린더 동기화 삭제 시 사용)
+    String? calendarEventId,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _ScheduleEntity;

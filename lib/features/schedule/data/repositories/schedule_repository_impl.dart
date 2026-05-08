@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../shared/database/app_database.dart';
 import '../../../../shared/services/notification_service.dart';
 import '../../../../shared/services/background_service.dart';
+import '../../../../shared/services/calendar_service.dart';
 import '../../domain/entities/schedule_entity.dart';
 import '../../domain/repositories/schedule_repository.dart';
 
@@ -91,7 +92,21 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
     // 60분 후 Workmanager 백그라운드 체크 등록
     await BackgroundService.registerNaggingTask(scheduleId: id);
 
-    return entity;
+    // iOS 캘린더에 이벤트 추가
+    final calendarEventId = await CalendarService.instance.addEvent(
+      title: entity.title,
+      scheduledAt: entity.scheduledAt,
+    );
+    if (calendarEventId != null) {
+      await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(id)))
+          .write(ScheduleTableCompanion(
+        calendarEventId: Value(calendarEventId),
+      ));
+    }
+
+    return calendarEventId != null
+        ? entity.copyWith(calendarEventId: calendarEventId)
+        : entity;
   }
 
   @override
@@ -131,12 +146,17 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
   @override
   Future<ScheduleEntity> rescheduleSchedule(
       String id, DateTime newScheduledAt) async {
+    // 기존 캘린더 이벤트 삭제
+    final existing = await getSchedule(id);
+    await CalendarService.instance.deleteEvent(existing?.calendarEventId);
+
     await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(id)))
         .write(ScheduleTableCompanion(
       scheduledAt: Value(newScheduledAt),
       status: const Value('pending'),
       naggingCount: const Value(0),
       snoozedUntil: const Value(null),
+      calendarEventId: const Value(null),
       updatedAt: Value(DateTime.now()),
     ));
 
@@ -146,15 +166,35 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
     await NotificationService.instance.scheduleAll(entity);
     await BackgroundService.registerNaggingTask(scheduleId: id);
 
-    return entity;
+    // 새 시각으로 캘린더 이벤트 추가
+    final calendarEventId = await CalendarService.instance.addEvent(
+      title: entity.title,
+      scheduledAt: entity.scheduledAt,
+    );
+    if (calendarEventId != null) {
+      await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(id)))
+          .write(ScheduleTableCompanion(
+        calendarEventId: Value(calendarEventId),
+      ));
+    }
+
+    return calendarEventId != null
+        ? entity.copyWith(calendarEventId: calendarEventId)
+        : entity;
   }
 
   @override
   Future<void> deleteSchedule(String id) async {
+    // 캘린더 이벤트 삭제를 위해 먼저 조회
+    final entity = await getSchedule(id);
+
     await (_db.delete(_db.scheduleTable)..where((t) => t.id.equals(id))).go();
 
     await NotificationService.instance.cancelAll(id);
     await BackgroundService.cancelNaggingTask(id);
+
+    // iOS 캘린더에서 이벤트 제거
+    await CalendarService.instance.deleteEvent(entity?.calendarEventId);
   }
 
   @override
@@ -217,6 +257,7 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
       naggingCount: row.naggingCount,
       snoozedUntil: row.snoozedUntil,
       completedAt: row.completedAt,
+      calendarEventId: row.calendarEventId,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );

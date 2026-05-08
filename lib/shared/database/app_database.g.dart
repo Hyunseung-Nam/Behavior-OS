@@ -82,6 +82,12 @@ class $ScheduleTableTable extends ScheduleTable
   late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
       'completed_at', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _calendarEventIdMeta =
+      const VerificationMeta('calendarEventId');
+  @override
+  late final GeneratedColumn<String> calendarEventId = GeneratedColumn<String>(
+      'calendar_event_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -108,6 +114,7 @@ class $ScheduleTableTable extends ScheduleTable
         naggingCount,
         snoozedUntil,
         completedAt,
+        calendarEventId,
         createdAt,
         updatedAt
       ];
@@ -188,6 +195,12 @@ class $ScheduleTableTable extends ScheduleTable
           completedAt.isAcceptableOrUnknown(
               data['completed_at']!, _completedAtMeta));
     }
+    if (data.containsKey('calendar_event_id')) {
+      context.handle(
+          _calendarEventIdMeta,
+          calendarEventId.isAcceptableOrUnknown(
+              data['calendar_event_id']!, _calendarEventIdMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -233,6 +246,8 @@ class $ScheduleTableTable extends ScheduleTable
           .read(DriftSqlType.dateTime, data['${effectivePrefix}snoozed_until']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at']),
+      calendarEventId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}calendar_event_id']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -260,6 +275,7 @@ class ScheduleTableData extends DataClass
   final int naggingCount;
   final DateTime? snoozedUntil;
   final DateTime? completedAt;
+  final String? calendarEventId;
   final DateTime createdAt;
   final DateTime updatedAt;
   const ScheduleTableData(
@@ -275,6 +291,7 @@ class ScheduleTableData extends DataClass
       required this.naggingCount,
       this.snoozedUntil,
       this.completedAt,
+      this.calendarEventId,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -301,6 +318,9 @@ class ScheduleTableData extends DataClass
     }
     if (!nullToAbsent || completedAt != null) {
       map['completed_at'] = Variable<DateTime>(completedAt);
+    }
+    if (!nullToAbsent || calendarEventId != null) {
+      map['calendar_event_id'] = Variable<String>(calendarEventId);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -329,6 +349,9 @@ class ScheduleTableData extends DataClass
       completedAt: completedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(completedAt),
+      calendarEventId: calendarEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(calendarEventId),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -350,6 +373,7 @@ class ScheduleTableData extends DataClass
       naggingCount: serializer.fromJson<int>(json['naggingCount']),
       snoozedUntil: serializer.fromJson<DateTime?>(json['snoozedUntil']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
+      calendarEventId: serializer.fromJson<String?>(json['calendarEventId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -370,6 +394,7 @@ class ScheduleTableData extends DataClass
       'naggingCount': serializer.toJson<int>(naggingCount),
       'snoozedUntil': serializer.toJson<DateTime?>(snoozedUntil),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
+      'calendarEventId': serializer.toJson<String?>(calendarEventId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -388,6 +413,7 @@ class ScheduleTableData extends DataClass
           int? naggingCount,
           Value<DateTime?> snoozedUntil = const Value.absent(),
           Value<DateTime?> completedAt = const Value.absent(),
+          Value<String?> calendarEventId = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       ScheduleTableData(
@@ -405,6 +431,9 @@ class ScheduleTableData extends DataClass
         snoozedUntil:
             snoozedUntil.present ? snoozedUntil.value : this.snoozedUntil,
         completedAt: completedAt.present ? completedAt.value : this.completedAt,
+        calendarEventId: calendarEventId.present
+            ? calendarEventId.value
+            : this.calendarEventId,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -431,6 +460,9 @@ class ScheduleTableData extends DataClass
           : this.snoozedUntil,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
+      calendarEventId: data.calendarEventId.present
+          ? data.calendarEventId.value
+          : this.calendarEventId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -451,6 +483,7 @@ class ScheduleTableData extends DataClass
           ..write('naggingCount: $naggingCount, ')
           ..write('snoozedUntil: $snoozedUntil, ')
           ..write('completedAt: $completedAt, ')
+          ..write('calendarEventId: $calendarEventId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -471,6 +504,7 @@ class ScheduleTableData extends DataClass
       naggingCount,
       snoozedUntil,
       completedAt,
+      calendarEventId,
       createdAt,
       updatedAt);
   @override
@@ -489,6 +523,7 @@ class ScheduleTableData extends DataClass
           other.naggingCount == this.naggingCount &&
           other.snoozedUntil == this.snoozedUntil &&
           other.completedAt == this.completedAt &&
+          other.calendarEventId == this.calendarEventId &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -506,6 +541,7 @@ class ScheduleTableCompanion extends UpdateCompanion<ScheduleTableData> {
   final Value<int> naggingCount;
   final Value<DateTime?> snoozedUntil;
   final Value<DateTime?> completedAt;
+  final Value<String?> calendarEventId;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -522,6 +558,7 @@ class ScheduleTableCompanion extends UpdateCompanion<ScheduleTableData> {
     this.naggingCount = const Value.absent(),
     this.snoozedUntil = const Value.absent(),
     this.completedAt = const Value.absent(),
+    this.calendarEventId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -539,6 +576,7 @@ class ScheduleTableCompanion extends UpdateCompanion<ScheduleTableData> {
     this.naggingCount = const Value.absent(),
     this.snoozedUntil = const Value.absent(),
     this.completedAt = const Value.absent(),
+    this.calendarEventId = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -561,6 +599,7 @@ class ScheduleTableCompanion extends UpdateCompanion<ScheduleTableData> {
     Expression<int>? naggingCount,
     Expression<DateTime>? snoozedUntil,
     Expression<DateTime>? completedAt,
+    Expression<String>? calendarEventId,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -578,6 +617,7 @@ class ScheduleTableCompanion extends UpdateCompanion<ScheduleTableData> {
       if (naggingCount != null) 'nagging_count': naggingCount,
       if (snoozedUntil != null) 'snoozed_until': snoozedUntil,
       if (completedAt != null) 'completed_at': completedAt,
+      if (calendarEventId != null) 'calendar_event_id': calendarEventId,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -597,6 +637,7 @@ class ScheduleTableCompanion extends UpdateCompanion<ScheduleTableData> {
       Value<int>? naggingCount,
       Value<DateTime?>? snoozedUntil,
       Value<DateTime?>? completedAt,
+      Value<String?>? calendarEventId,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -613,6 +654,7 @@ class ScheduleTableCompanion extends UpdateCompanion<ScheduleTableData> {
       naggingCount: naggingCount ?? this.naggingCount,
       snoozedUntil: snoozedUntil ?? this.snoozedUntil,
       completedAt: completedAt ?? this.completedAt,
+      calendarEventId: calendarEventId ?? this.calendarEventId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -658,6 +700,9 @@ class ScheduleTableCompanion extends UpdateCompanion<ScheduleTableData> {
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
     }
+    if (calendarEventId.present) {
+      map['calendar_event_id'] = Variable<String>(calendarEventId.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -685,6 +730,7 @@ class ScheduleTableCompanion extends UpdateCompanion<ScheduleTableData> {
           ..write('naggingCount: $naggingCount, ')
           ..write('snoozedUntil: $snoozedUntil, ')
           ..write('completedAt: $completedAt, ')
+          ..write('calendarEventId: $calendarEventId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -718,6 +764,7 @@ typedef $$ScheduleTableTableCreateCompanionBuilder = ScheduleTableCompanion
   Value<int> naggingCount,
   Value<DateTime?> snoozedUntil,
   Value<DateTime?> completedAt,
+  Value<String?> calendarEventId,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -736,6 +783,7 @@ typedef $$ScheduleTableTableUpdateCompanionBuilder = ScheduleTableCompanion
   Value<int> naggingCount,
   Value<DateTime?> snoozedUntil,
   Value<DateTime?> completedAt,
+  Value<String?> calendarEventId,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -785,6 +833,10 @@ class $$ScheduleTableTableFilterComposer
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get calendarEventId => $composableBuilder(
+      column: $table.calendarEventId,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -841,6 +893,10 @@ class $$ScheduleTableTableOrderingComposer
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get calendarEventId => $composableBuilder(
+      column: $table.calendarEventId,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -893,6 +949,9 @@ class $$ScheduleTableTableAnnotationComposer
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
 
+  GeneratedColumn<String> get calendarEventId => $composableBuilder(
+      column: $table.calendarEventId, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -938,6 +997,7 @@ class $$ScheduleTableTableTableManager extends RootTableManager<
             Value<int> naggingCount = const Value.absent(),
             Value<DateTime?> snoozedUntil = const Value.absent(),
             Value<DateTime?> completedAt = const Value.absent(),
+            Value<String?> calendarEventId = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -955,6 +1015,7 @@ class $$ScheduleTableTableTableManager extends RootTableManager<
             naggingCount: naggingCount,
             snoozedUntil: snoozedUntil,
             completedAt: completedAt,
+            calendarEventId: calendarEventId,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -972,6 +1033,7 @@ class $$ScheduleTableTableTableManager extends RootTableManager<
             Value<int> naggingCount = const Value.absent(),
             Value<DateTime?> snoozedUntil = const Value.absent(),
             Value<DateTime?> completedAt = const Value.absent(),
+            Value<String?> calendarEventId = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -989,6 +1051,7 @@ class $$ScheduleTableTableTableManager extends RootTableManager<
             naggingCount: naggingCount,
             snoozedUntil: snoozedUntil,
             completedAt: completedAt,
+            calendarEventId: calendarEventId,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,

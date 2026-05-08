@@ -34,6 +34,9 @@ mixin _$ScheduleEntity {
   int get naggingCount => throw _privateConstructorUsedError;
   DateTime? get snoozedUntil => throw _privateConstructorUsedError;
   DateTime? get completedAt => throw _privateConstructorUsedError;
+
+  /// iOS 캘린더 이벤트 ID (캘린더 동기화 삭제 시 사용)
+  String? get calendarEventId => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
@@ -63,6 +66,7 @@ abstract class $ScheduleEntityCopyWith<$Res> {
       int naggingCount,
       DateTime? snoozedUntil,
       DateTime? completedAt,
+      String? calendarEventId,
       DateTime createdAt,
       DateTime updatedAt});
 }
@@ -94,6 +98,7 @@ class _$ScheduleEntityCopyWithImpl<$Res, $Val extends ScheduleEntity>
     Object? naggingCount = null,
     Object? snoozedUntil = freezed,
     Object? completedAt = freezed,
+    Object? calendarEventId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -146,6 +151,10 @@ class _$ScheduleEntityCopyWithImpl<$Res, $Val extends ScheduleEntity>
           ? _value.completedAt
           : completedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      calendarEventId: freezed == calendarEventId
+          ? _value.calendarEventId
+          : calendarEventId // ignore: cast_nullable_to_non_nullable
+              as String?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -179,6 +188,7 @@ abstract class _$$ScheduleEntityImplCopyWith<$Res>
       int naggingCount,
       DateTime? snoozedUntil,
       DateTime? completedAt,
+      String? calendarEventId,
       DateTime createdAt,
       DateTime updatedAt});
 }
@@ -208,6 +218,7 @@ class __$$ScheduleEntityImplCopyWithImpl<$Res>
     Object? naggingCount = null,
     Object? snoozedUntil = freezed,
     Object? completedAt = freezed,
+    Object? calendarEventId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -260,6 +271,10 @@ class __$$ScheduleEntityImplCopyWithImpl<$Res>
           ? _value.completedAt
           : completedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      calendarEventId: freezed == calendarEventId
+          ? _value.calendarEventId
+          : calendarEventId // ignore: cast_nullable_to_non_nullable
+              as String?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -288,6 +303,7 @@ class _$ScheduleEntityImpl extends _ScheduleEntity {
       this.naggingCount = 0,
       this.snoozedUntil,
       this.completedAt,
+      this.calendarEventId,
       required this.createdAt,
       required this.updatedAt})
       : super._();
@@ -325,6 +341,10 @@ class _$ScheduleEntityImpl extends _ScheduleEntity {
   final DateTime? snoozedUntil;
   @override
   final DateTime? completedAt;
+
+  /// iOS 캘린더 이벤트 ID (캘린더 동기화 삭제 시 사용)
+  @override
+  final String? calendarEventId;
   @override
   final DateTime createdAt;
   @override
@@ -332,7 +352,7 @@ class _$ScheduleEntityImpl extends _ScheduleEntity {
 
   @override
   String toString() {
-    return 'ScheduleEntity(id: $id, userId: $userId, title: $title, description: $description, why: $why, minimumAction: $minimumAction, category: $category, scheduledAt: $scheduledAt, status: $status, naggingCount: $naggingCount, snoozedUntil: $snoozedUntil, completedAt: $completedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ScheduleEntity(id: $id, userId: $userId, title: $title, description: $description, why: $why, minimumAction: $minimumAction, category: $category, scheduledAt: $scheduledAt, status: $status, naggingCount: $naggingCount, snoozedUntil: $snoozedUntil, completedAt: $completedAt, calendarEventId: $calendarEventId, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -359,6 +379,8 @@ class _$ScheduleEntityImpl extends _ScheduleEntity {
                 other.snoozedUntil == snoozedUntil) &&
             (identical(other.completedAt, completedAt) ||
                 other.completedAt == completedAt) &&
+            (identical(other.calendarEventId, calendarEventId) ||
+                other.calendarEventId == calendarEventId) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -380,6 +402,7 @@ class _$ScheduleEntityImpl extends _ScheduleEntity {
       naggingCount,
       snoozedUntil,
       completedAt,
+      calendarEventId,
       createdAt,
       updatedAt);
 
@@ -407,6 +430,7 @@ abstract class _ScheduleEntity extends ScheduleEntity {
       final int naggingCount,
       final DateTime? snoozedUntil,
       final DateTime? completedAt,
+      final String? calendarEventId,
       required final DateTime createdAt,
       required final DateTime updatedAt}) = _$ScheduleEntityImpl;
   const _ScheduleEntity._() : super._();
@@ -441,6 +465,10 @@ abstract class _ScheduleEntity extends ScheduleEntity {
   DateTime? get snoozedUntil;
   @override
   DateTime? get completedAt;
+
+  /// iOS 캘린더 이벤트 ID (캘린더 동기화 삭제 시 사용)
+  @override
+  String? get calendarEventId;
   @override
   DateTime get createdAt;
   @override
