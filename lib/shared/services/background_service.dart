@@ -3,8 +3,9 @@ import 'package:workmanager/workmanager.dart';
 
 import '../../core/constants/app_constants.dart';
 
+// iOS: BGTaskSchedulerPermittedIdentifiers 등록 없이는 동적 UUID 식별자 불가
+// flutter_local_notifications가 이미 Nagging 12개(60분)를 선스케줄하므로 iOS는 불필요
 bool get _workmanagerSupported =>
-    defaultTargetPlatform == TargetPlatform.iOS ||
     defaultTargetPlatform == TargetPlatform.android;
 
 /// 백그라운드 서비스

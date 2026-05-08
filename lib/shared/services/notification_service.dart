@@ -1,9 +1,12 @@
+import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../core/constants/app_constants.dart';
 import '../../features/schedule/domain/entities/schedule_entity.dart';
+import '../database/app_database.dart';
 
 /// 알림 타입
 enum NotificationType { earlyReminder, prepReminder, trigger, nagging }
@@ -40,14 +43,25 @@ class NotificationService {
 
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings(
+    // 잠금화면 알림 액션 버튼 정의 (완료)
+    final completeAction = DarwinNotificationAction.plain(
+      AppConstants.notificationActionComplete,
+      '행동 완료',
+    );
+    final scheduleCategory = DarwinNotificationCategory(
+      AppConstants.notificationCategorySchedule,
+      actions: [completeAction],
+    );
+
+    final iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
+      notificationCategories: [scheduleCategory],
     );
 
     final result = await _plugin.initialize(
-      const InitializationSettings(
+      InitializationSettings(
         android: androidSettings,
         iOS: iosSettings,
         macOS: iosSettings,
@@ -245,7 +259,8 @@ class NotificationService {
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
-        interruptionLevel: InterruptionLevel.timeSensitive,
+        interruptionLevel: InterruptionLevel.active,
+        categoryIdentifier: AppConstants.notificationCategorySchedule,
       ),
     );
   }
@@ -254,11 +269,41 @@ class NotificationService {
       '$scheduleId:${type.name}';
 
   void _onNotificationTapped(NotificationResponse response) {
-    // payload 형식: "scheduleId:notificationType"
-    // GoRouter를 통해 /focus/:id 로 이동 (NavigationService 연동 예정)
+    if (response.actionId == AppConstants.notificationActionComplete) {
+      _handleCompleteAction(response.payload);
+    }
+    // 일반 탭: GoRouter 딥링크 연동 예정
   }
 }
 
-/// 백그라운드 알림 탭 핸들러 (top-level 함수 필수)
+/// 잠금화면 "행동 완료" 액션 처리
+///
+/// payload 형식: "scheduleId:notificationType"
+/// Side Effects: DB 상태 → completed, 관련 알림 전부 취소
+Future<void> _handleCompleteAction(String? payload) async {
+  if (payload == null) return;
+  final scheduleId = payload.split(':').first;
+  if (scheduleId.isEmpty) return;
+
+  final db = AppDatabase();
+  final now = DateTime.now();
+
+  await (db.update(db.scheduleTable)..where((t) => t.id.equals(scheduleId)))
+      .write(ScheduleTableCompanion(
+    status: const Value('completed'),
+    completedAt: Value(now),
+    updatedAt: Value(now),
+  ));
+
+  await db.close();
+  await NotificationService.instance.cancelAll(scheduleId);
+}
+
+/// 백그라운드 알림 탭 핸들러 (top-level 함수 필수, 별도 isolate에서 실행)
 @pragma('vm:entry-point')
-void _onBackgroundTapped(NotificationResponse response) {}
+void _onBackgroundTapped(NotificationResponse response) {
+  if (response.actionId == AppConstants.notificationActionComplete) {
+    tz_data.initializeTimeZones();
+    _handleCompleteAction(response.payload);
+  }
+}

@@ -26,9 +26,9 @@ Future<void> main() async {
   // 2. 로컬 알림 초기화
   await NotificationService.instance.initialize();
 
-  // 3. Workmanager 초기화 (iOS/Android 전용)
-  if (defaultTargetPlatform == TargetPlatform.iOS ||
-      defaultTargetPlatform == TargetPlatform.android) {
+  // 3. Workmanager 초기화 (Android 전용)
+  // iOS: BGTaskSchedulerPermittedIdentifiers 미등록 + 동적 UUID 식별자 제약으로 비활성
+  if (defaultTargetPlatform == TargetPlatform.android) {
     await Workmanager().initialize(
       BackgroundService.callbackDispatcher,
       isInDebugMode: false,

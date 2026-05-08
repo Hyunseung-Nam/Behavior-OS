@@ -18,4 +18,8 @@ abstract class AppConstants {
   // Workmanager task 이름
   static const String naggingTaskName = 'behavior_os_nagging_check';
   static const String naggingTaskTag = 'nagging';
+
+  // 알림 액션 (잠금화면 버튼)
+  static const String notificationCategorySchedule = 'schedule_category';
+  static const String notificationActionComplete = 'complete_action';
 }
