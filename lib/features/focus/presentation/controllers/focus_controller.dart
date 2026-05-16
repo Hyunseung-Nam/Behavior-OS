@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/providers/repository_providers.dart';
@@ -31,13 +33,18 @@ Stream<int> todayCompletedCount(TodayCompletedCountRef ref) {
 class FocusController extends _$FocusController {
   @override
   Stream<ScheduleEntity?> build() {
-    // 빌드 시 상태 동기화 (pending→active, missed 처리)
-    ref.read(scheduleRepositoryProvider).syncStatuses();
+    final repo = ref.watch(scheduleRepositoryProvider);
 
-    return ref
-        .watch(scheduleRepositoryProvider)
-        .watchSchedules()
-        .map(_pickMostUrgent);
+    // 빌드 시 최초 동기화
+    repo.syncStatuses();
+
+    // 1분마다 상태 재동기화 (pending→active, missed 처리)
+    final timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      repo.syncStatuses();
+    });
+    ref.onDispose(timer.cancel);
+
+    return repo.watchSchedules().map(_pickMostUrgent);
   }
 
   /// 가장 시급한 일정 선택 로직

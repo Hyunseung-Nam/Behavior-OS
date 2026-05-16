@@ -2,7 +2,9 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/focus/presentation/pages/focus_page.dart';
+import '../../features/history/presentation/pages/history_page.dart';
 import '../../features/missed/presentation/pages/missed_page.dart';
+import '../../features/routine/presentation/pages/routine_settings_page.dart';
 import '../../features/schedule/presentation/pages/schedule_list_page.dart';
 
 part 'app_router.g.dart';
@@ -31,6 +33,14 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/missed',
         builder: (context, state) => const MissedPage(),
+      ),
+      GoRoute(
+        path: '/history',
+        builder: (context, state) => const HistoryPage(),
+      ),
+      GoRoute(
+        path: '/settings/routines',
+        builder: (context, state) => const RoutineSettingsPage(),
       ),
       // 알림 탭 시 딥링크: /focus/:id
       GoRoute(

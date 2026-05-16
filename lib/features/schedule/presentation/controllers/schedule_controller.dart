@@ -43,6 +43,30 @@ class ScheduleController extends _$ScheduleController {
         );
   }
 
+  /// 일정 수정
+  ///
+  /// Args:
+  ///   id: 수정할 일정 ID
+  ///   title, why, minimumAction, category, scheduledAt: 변경할 값
+  /// Side Effects: 기존 알림/캘린더 취소 후 재등록, DB 갱신, 스트림 갱신
+  Future<void> edit({
+    required String id,
+    required String title,
+    String? why,
+    String? minimumAction,
+    required ScheduleCategory category,
+    required DateTime scheduledAt,
+  }) async {
+    await ref.read(scheduleRepositoryProvider).updateSchedule(
+          id,
+          title: title,
+          why: why,
+          minimumAction: minimumAction,
+          category: category,
+          scheduledAt: scheduledAt,
+        );
+  }
+
   /// 일정 삭제
   ///
   /// Args:

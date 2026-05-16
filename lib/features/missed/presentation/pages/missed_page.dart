@@ -123,7 +123,10 @@ class _MissedItem extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('일정이 재등록되었습니다.'),
+            content: Text(
+              '일정이 재등록되었습니다.',
+              style: TextStyle(color: Colors.white),
+            ),
             backgroundColor: Colors.white10,
           ),
         );

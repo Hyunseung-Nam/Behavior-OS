@@ -188,6 +188,80 @@ class NotificationService {
     }
   }
 
+  /// 루틴 매일 반복 알림 등록
+  ///
+  /// Args:
+  ///   routineId: 루틴 고유 ID (알림 ID 생성에 사용)
+  ///   title: 알림 제목
+  ///   hour: 알림 시(0–23)
+  ///   minute: 알림 분(0–59)
+  /// Side Effects: 매일 지정 시각에 반복 로컬 알림 등록
+  Future<void> scheduleDailyRoutine({
+    required String routineId,
+    required String title,
+    required int hour,
+    required int minute,
+  }) async {
+    if (defaultTargetPlatform == TargetPlatform.macOS) return;
+
+    final id = _routineNotificationId(routineId);
+    final scheduled = _nextInstanceOfTime(hour, minute);
+
+    await _plugin.zonedSchedule(
+      id,
+      '루틴',
+      title,
+      scheduled,
+      _routineNotificationDetails(),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time, // 매일 반복
+    );
+  }
+
+  /// 루틴 알림 취소
+  ///
+  /// Args:
+  ///   routineId: 취소할 루틴 ID
+  Future<void> cancelDailyRoutine(String routineId) async {
+    if (defaultTargetPlatform == TargetPlatform.macOS) return;
+    await _plugin.cancel(_routineNotificationId(routineId));
+  }
+
+  /// 루틴 알림 ID (일정 알림과 충돌 방지: offset 1_000_000 이상 사용)
+  static int _routineNotificationId(String routineId) =>
+      1000000 + routineId.hashCode.abs() % 1000000;
+
+  /// 다음 반복 시각 계산 (오늘 해당 시각이 지났으면 내일)
+  tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduled =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
+    if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+    return scheduled;
+  }
+
+  NotificationDetails _routineNotificationDetails() {
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        AppConstants.notificationChannelId,
+        AppConstants.notificationChannelName,
+        channelDescription: AppConstants.notificationChannelDesc,
+        importance: Importance.high,
+        priority: Priority.high,
+      ),
+      iOS: const DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        interruptionLevel: InterruptionLevel.active,
+      ),
+    );
+  }
+
   /// Snooze 후 단일 알림 등록 (n분 후 재트리거)
   ///
   /// Args:

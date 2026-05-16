@@ -29,17 +29,34 @@ class ScheduleTable extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// 루틴 테이블 정의
+///
+/// 역할: 매일 반복 알림을 가지는 루틴 항목 저장.
+/// 기본키: id (UUID 문자열)
+class RoutineTable extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  IntColumn get notifyHour => integer()();
+  IntColumn get notifyMinute => integer()();
+  BoolColumn get isEnabled => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 /// 앱 로컬 데이터베이스
 ///
 /// 역할: Drift 기반 SQLite 싱글턴. 앱 전역에서 공유.
 /// 책임: 테이블 관리, 마이그레이션 버전 관리.
 /// 외부 의존성: drift_flutter, path_provider
-@DriftDatabase(tables: [ScheduleTable])
+@DriftDatabase(tables: [ScheduleTable, RoutineTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -52,6 +69,9 @@ class AppDatabase extends _$AppDatabase {
       if (from < 3) {
         await migrator.addColumn(
             scheduleTable, scheduleTable.calendarEventId);
+      }
+      if (from < 4) {
+        await migrator.createTable(routineTable);
       }
     },
   );

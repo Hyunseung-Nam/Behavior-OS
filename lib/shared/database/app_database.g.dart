@@ -739,15 +739,409 @@ class ScheduleTableCompanion extends UpdateCompanion<ScheduleTableData> {
   }
 }
 
+class $RoutineTableTable extends RoutineTable
+    with TableInfo<$RoutineTableTable, RoutineTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RoutineTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _notifyHourMeta =
+      const VerificationMeta('notifyHour');
+  @override
+  late final GeneratedColumn<int> notifyHour = GeneratedColumn<int>(
+      'notify_hour', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _notifyMinuteMeta =
+      const VerificationMeta('notifyMinute');
+  @override
+  late final GeneratedColumn<int> notifyMinute = GeneratedColumn<int>(
+      'notify_minute', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _isEnabledMeta =
+      const VerificationMeta('isEnabled');
+  @override
+  late final GeneratedColumn<bool> isEnabled = GeneratedColumn<bool>(
+      'is_enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_enabled" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, title, notifyHour, notifyMinute, isEnabled, createdAt, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'routine_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<RoutineTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('notify_hour')) {
+      context.handle(
+          _notifyHourMeta,
+          notifyHour.isAcceptableOrUnknown(
+              data['notify_hour']!, _notifyHourMeta));
+    } else if (isInserting) {
+      context.missing(_notifyHourMeta);
+    }
+    if (data.containsKey('notify_minute')) {
+      context.handle(
+          _notifyMinuteMeta,
+          notifyMinute.isAcceptableOrUnknown(
+              data['notify_minute']!, _notifyMinuteMeta));
+    } else if (isInserting) {
+      context.missing(_notifyMinuteMeta);
+    }
+    if (data.containsKey('is_enabled')) {
+      context.handle(_isEnabledMeta,
+          isEnabled.isAcceptableOrUnknown(data['is_enabled']!, _isEnabledMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RoutineTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RoutineTableData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      notifyHour: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}notify_hour'])!,
+      notifyMinute: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}notify_minute'])!,
+      isEnabled: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_enabled'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $RoutineTableTable createAlias(String alias) {
+    return $RoutineTableTable(attachedDatabase, alias);
+  }
+}
+
+class RoutineTableData extends DataClass
+    implements Insertable<RoutineTableData> {
+  final String id;
+  final String title;
+  final int notifyHour;
+  final int notifyMinute;
+  final bool isEnabled;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const RoutineTableData(
+      {required this.id,
+      required this.title,
+      required this.notifyHour,
+      required this.notifyMinute,
+      required this.isEnabled,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    map['notify_hour'] = Variable<int>(notifyHour);
+    map['notify_minute'] = Variable<int>(notifyMinute);
+    map['is_enabled'] = Variable<bool>(isEnabled);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  RoutineTableCompanion toCompanion(bool nullToAbsent) {
+    return RoutineTableCompanion(
+      id: Value(id),
+      title: Value(title),
+      notifyHour: Value(notifyHour),
+      notifyMinute: Value(notifyMinute),
+      isEnabled: Value(isEnabled),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory RoutineTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RoutineTableData(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      notifyHour: serializer.fromJson<int>(json['notifyHour']),
+      notifyMinute: serializer.fromJson<int>(json['notifyMinute']),
+      isEnabled: serializer.fromJson<bool>(json['isEnabled']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'notifyHour': serializer.toJson<int>(notifyHour),
+      'notifyMinute': serializer.toJson<int>(notifyMinute),
+      'isEnabled': serializer.toJson<bool>(isEnabled),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  RoutineTableData copyWith(
+          {String? id,
+          String? title,
+          int? notifyHour,
+          int? notifyMinute,
+          bool? isEnabled,
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      RoutineTableData(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        notifyHour: notifyHour ?? this.notifyHour,
+        notifyMinute: notifyMinute ?? this.notifyMinute,
+        isEnabled: isEnabled ?? this.isEnabled,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  RoutineTableData copyWithCompanion(RoutineTableCompanion data) {
+    return RoutineTableData(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      notifyHour:
+          data.notifyHour.present ? data.notifyHour.value : this.notifyHour,
+      notifyMinute: data.notifyMinute.present
+          ? data.notifyMinute.value
+          : this.notifyMinute,
+      isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoutineTableData(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('notifyHour: $notifyHour, ')
+          ..write('notifyMinute: $notifyMinute, ')
+          ..write('isEnabled: $isEnabled, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, title, notifyHour, notifyMinute, isEnabled, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RoutineTableData &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.notifyHour == this.notifyHour &&
+          other.notifyMinute == this.notifyMinute &&
+          other.isEnabled == this.isEnabled &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class RoutineTableCompanion extends UpdateCompanion<RoutineTableData> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<int> notifyHour;
+  final Value<int> notifyMinute;
+  final Value<bool> isEnabled;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const RoutineTableCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.notifyHour = const Value.absent(),
+    this.notifyMinute = const Value.absent(),
+    this.isEnabled = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RoutineTableCompanion.insert({
+    required String id,
+    required String title,
+    required int notifyHour,
+    required int notifyMinute,
+    this.isEnabled = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title),
+        notifyHour = Value(notifyHour),
+        notifyMinute = Value(notifyMinute),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<RoutineTableData> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<int>? notifyHour,
+    Expression<int>? notifyMinute,
+    Expression<bool>? isEnabled,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (notifyHour != null) 'notify_hour': notifyHour,
+      if (notifyMinute != null) 'notify_minute': notifyMinute,
+      if (isEnabled != null) 'is_enabled': isEnabled,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RoutineTableCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<int>? notifyHour,
+      Value<int>? notifyMinute,
+      Value<bool>? isEnabled,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return RoutineTableCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      notifyHour: notifyHour ?? this.notifyHour,
+      notifyMinute: notifyMinute ?? this.notifyMinute,
+      isEnabled: isEnabled ?? this.isEnabled,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (notifyHour.present) {
+      map['notify_hour'] = Variable<int>(notifyHour.value);
+    }
+    if (notifyMinute.present) {
+      map['notify_minute'] = Variable<int>(notifyMinute.value);
+    }
+    if (isEnabled.present) {
+      map['is_enabled'] = Variable<bool>(isEnabled.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoutineTableCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('notifyHour: $notifyHour, ')
+          ..write('notifyMinute: $notifyMinute, ')
+          ..write('isEnabled: $isEnabled, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ScheduleTableTable scheduleTable = $ScheduleTableTable(this);
+  late final $RoutineTableTable routineTable = $RoutineTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [scheduleTable];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [scheduleTable, routineTable];
 }
 
 typedef $$ScheduleTableTableCreateCompanionBuilder = ScheduleTableCompanion
@@ -1078,10 +1472,216 @@ typedef $$ScheduleTableTableProcessedTableManager = ProcessedTableManager<
     ),
     ScheduleTableData,
     PrefetchHooks Function()>;
+typedef $$RoutineTableTableCreateCompanionBuilder = RoutineTableCompanion
+    Function({
+  required String id,
+  required String title,
+  required int notifyHour,
+  required int notifyMinute,
+  Value<bool> isEnabled,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$RoutineTableTableUpdateCompanionBuilder = RoutineTableCompanion
+    Function({
+  Value<String> id,
+  Value<String> title,
+  Value<int> notifyHour,
+  Value<int> notifyMinute,
+  Value<bool> isEnabled,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$RoutineTableTableFilterComposer
+    extends Composer<_$AppDatabase, $RoutineTableTable> {
+  $$RoutineTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get notifyHour => $composableBuilder(
+      column: $table.notifyHour, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get notifyMinute => $composableBuilder(
+      column: $table.notifyMinute, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isEnabled => $composableBuilder(
+      column: $table.isEnabled, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$RoutineTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $RoutineTableTable> {
+  $$RoutineTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get notifyHour => $composableBuilder(
+      column: $table.notifyHour, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get notifyMinute => $composableBuilder(
+      column: $table.notifyMinute,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isEnabled => $composableBuilder(
+      column: $table.isEnabled, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$RoutineTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RoutineTableTable> {
+  $$RoutineTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<int> get notifyHour => $composableBuilder(
+      column: $table.notifyHour, builder: (column) => column);
+
+  GeneratedColumn<int> get notifyMinute => $composableBuilder(
+      column: $table.notifyMinute, builder: (column) => column);
+
+  GeneratedColumn<bool> get isEnabled =>
+      $composableBuilder(column: $table.isEnabled, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$RoutineTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $RoutineTableTable,
+    RoutineTableData,
+    $$RoutineTableTableFilterComposer,
+    $$RoutineTableTableOrderingComposer,
+    $$RoutineTableTableAnnotationComposer,
+    $$RoutineTableTableCreateCompanionBuilder,
+    $$RoutineTableTableUpdateCompanionBuilder,
+    (
+      RoutineTableData,
+      BaseReferences<_$AppDatabase, $RoutineTableTable, RoutineTableData>
+    ),
+    RoutineTableData,
+    PrefetchHooks Function()> {
+  $$RoutineTableTableTableManager(_$AppDatabase db, $RoutineTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RoutineTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RoutineTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RoutineTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<int> notifyHour = const Value.absent(),
+            Value<int> notifyMinute = const Value.absent(),
+            Value<bool> isEnabled = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              RoutineTableCompanion(
+            id: id,
+            title: title,
+            notifyHour: notifyHour,
+            notifyMinute: notifyMinute,
+            isEnabled: isEnabled,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            required int notifyHour,
+            required int notifyMinute,
+            Value<bool> isEnabled = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              RoutineTableCompanion.insert(
+            id: id,
+            title: title,
+            notifyHour: notifyHour,
+            notifyMinute: notifyMinute,
+            isEnabled: isEnabled,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$RoutineTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $RoutineTableTable,
+    RoutineTableData,
+    $$RoutineTableTableFilterComposer,
+    $$RoutineTableTableOrderingComposer,
+    $$RoutineTableTableAnnotationComposer,
+    $$RoutineTableTableCreateCompanionBuilder,
+    $$RoutineTableTableUpdateCompanionBuilder,
+    (
+      RoutineTableData,
+      BaseReferences<_$AppDatabase, $RoutineTableTable, RoutineTableData>
+    ),
+    RoutineTableData,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
   $$ScheduleTableTableTableManager get scheduleTable =>
       $$ScheduleTableTableTableManager(_db, _db.scheduleTable);
+  $$RoutineTableTableTableManager get routineTable =>
+      $$RoutineTableTableTableManager(_db, _db.routineTable);
 }

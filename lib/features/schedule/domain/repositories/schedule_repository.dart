@@ -30,6 +30,16 @@ abstract class ScheduleRepository {
   /// 놓친 일정 목록 조회
   Future<List<ScheduleEntity>> getMissedSchedules();
 
+  /// 일정 수정 (제목/내용/시각 변경 + 알림/캘린더 재등록)
+  Future<void> updateSchedule(
+    String id, {
+    required String title,
+    String? why,
+    String? minimumAction,
+    required ScheduleCategory category,
+    required DateTime scheduledAt,
+  });
+
   /// 놓친 일정 재스케줄링
   Future<ScheduleEntity> rescheduleSchedule(
       String id, DateTime newScheduledAt);

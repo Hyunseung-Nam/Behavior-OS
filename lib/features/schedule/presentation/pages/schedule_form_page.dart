@@ -6,12 +6,16 @@ import '../../domain/entities/schedule_entity.dart';
 import '../controllers/schedule_controller.dart';
 import '../utils/schedule_category_ui.dart';
 
-/// 일정 등록 바텀시트
+/// 일정 등록/수정 바텀시트
 ///
-/// 역할: 제목 + 날짜/시간 + why + minimumAction + category 입력 받아 일정 생성.
-/// 책임: 입력 유효성 검사 + ScheduleController.create() 호출.
+/// 역할: 제목 + 날짜/시간 + why + minimumAction + category 입력 받아 일정 생성 또는 수정.
+/// 책임: 입력 유효성 검사 + ScheduleController.create() / update() 호출.
+/// Args:
+///   schedule: null이면 등록 모드, 값이 있으면 수정 모드
 class ScheduleFormPage extends ConsumerStatefulWidget {
-  const ScheduleFormPage({super.key});
+  const ScheduleFormPage({super.key, this.schedule});
+
+  final ScheduleEntity? schedule;
 
   @override
   ConsumerState<ScheduleFormPage> createState() => _ScheduleFormPageState();
@@ -24,6 +28,21 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
   DateTime? _selectedDateTime;
   ScheduleCategory _category = ScheduleCategory.other;
   bool _isSaving = false;
+
+  bool get _isEditMode => widget.schedule != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final s = widget.schedule;
+    if (s != null) {
+      _titleController.text = s.title;
+      _whyController.text = s.why ?? '';
+      _minActionController.text = s.minimumAction ?? '';
+      _selectedDateTime = s.scheduledAt;
+      _category = s.category;
+    }
+  }
 
   @override
   void dispose() {
@@ -96,19 +115,33 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
       return;
     }
 
+    final why = _whyController.text.trim().isEmpty
+        ? null
+        : _whyController.text.trim();
+    final minimumAction = _minActionController.text.trim().isEmpty
+        ? null
+        : _minActionController.text.trim();
+
     setState(() => _isSaving = true);
     try {
-      await ref.read(scheduleControllerProvider.notifier).create(
-            title: title,
-            why: _whyController.text.trim().isEmpty
-                ? null
-                : _whyController.text.trim(),
-            minimumAction: _minActionController.text.trim().isEmpty
-                ? null
-                : _minActionController.text.trim(),
-            category: _category,
-            scheduledAt: _selectedDateTime!,
-          );
+      if (_isEditMode) {
+        await ref.read(scheduleControllerProvider.notifier).edit(
+              id: widget.schedule!.id,
+              title: title,
+              why: why,
+              minimumAction: minimumAction,
+              category: _category,
+              scheduledAt: _selectedDateTime!,
+            );
+      } else {
+        await ref.read(scheduleControllerProvider.notifier).create(
+              title: title,
+              why: why,
+              minimumAction: minimumAction,
+              category: _category,
+              scheduledAt: _selectedDateTime!,
+            );
+      }
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
@@ -136,9 +169,9 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                '새 일정',
-                style: TextStyle(
+              Text(
+                _isEditMode ? '일정 수정' : '새 일정',
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -275,9 +308,9 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                         color: Colors.white,
                       ),
                     )
-                  : const Text(
-                      '등록',
-                      style: TextStyle(
+                  : Text(
+                      _isEditMode ? '수정' : '등록',
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),

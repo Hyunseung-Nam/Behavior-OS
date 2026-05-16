@@ -15,8 +15,11 @@ import 'schedule_form_page.dart';
 class ScheduleListPage extends ConsumerWidget {
   const ScheduleListPage({super.key});
 
-  /// 일정 등록 바텀시트 호출
-  void _openForm(BuildContext context) {
+  /// 일정 등록/수정 바텀시트 호출
+  ///
+  /// Args:
+  ///   schedule: null이면 등록 모드, 값이 있으면 수정 모드
+  void _openForm(BuildContext context, {ScheduleEntity? schedule}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -24,7 +27,7 @@ class ScheduleListPage extends ConsumerWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => const ScheduleFormPage(),
+      builder: (_) => ScheduleFormPage(schedule: schedule),
     );
   }
 
@@ -48,6 +51,16 @@ class ScheduleListPage extends ConsumerWidget {
         centerTitle: false,
         elevation: 0,
         actions: [
+          IconButton(
+            onPressed: () => context.push('/settings/routines'),
+            icon: const Icon(Icons.repeat, color: Colors.white38),
+            tooltip: '루틴 설정',
+          ),
+          IconButton(
+            onPressed: () => context.push('/history'),
+            icon: const Icon(Icons.history, color: Colors.white38),
+            tooltip: '기록',
+          ),
           IconButton(
             onPressed: () => context.push('/missed'),
             icon: const Icon(Icons.inbox_outlined, color: Colors.white38),
@@ -86,7 +99,10 @@ class ScheduleListPage extends ConsumerWidget {
             separatorBuilder: (_, __) => const Divider(color: Colors.white10),
             itemBuilder: (context, index) {
               final schedule = active[index];
-              return _ScheduleItem(schedule: schedule);
+              return _ScheduleItem(
+                schedule: schedule,
+                onTap: () => _openForm(context, schedule: schedule),
+              );
             },
           );
         },
@@ -103,11 +119,12 @@ class ScheduleListPage extends ConsumerWidget {
 
 /// 개별 일정 아이템 위젯
 ///
-/// 역할: 일정 제목, 시간, 상태 배지 표시 + 스와이프 삭제.
+/// 역할: 일정 제목, 시간, 상태 배지 표시 + 탭 수정 + 스와이프 삭제.
 class _ScheduleItem extends ConsumerWidget {
-  const _ScheduleItem({required this.schedule});
+  const _ScheduleItem({required this.schedule, required this.onTap});
 
   final ScheduleEntity schedule;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -145,7 +162,9 @@ class _ScheduleItem extends ConsumerWidget {
       onDismissed: (_) {
         ref.read(scheduleControllerProvider.notifier).delete(schedule.id);
       },
-      child: Padding(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
@@ -189,6 +208,7 @@ class _ScheduleItem extends ConsumerWidget {
             _StatusBadge(status: schedule.status),
           ],
         ),
+      ),
       ),
     );
   }

@@ -26,7 +26,7 @@ final todayCompletedCountProvider = AutoDisposeStreamProvider<int>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef TodayCompletedCountRef = AutoDisposeStreamProviderRef<int>;
-String _$focusControllerHash() => r'e1c6ae5b57807c9fdda4b0455f5ef41e1db77f7e';
+String _$focusControllerHash() => r'b1ce02d4fa1ffb586eb183045a77d1ed842cdad8';
 
 /// Focus 화면 컨트롤러
 ///

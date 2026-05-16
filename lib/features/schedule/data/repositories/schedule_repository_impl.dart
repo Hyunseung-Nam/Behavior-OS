@@ -144,6 +144,55 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
   }
 
   @override
+  Future<void> updateSchedule(
+    String id, {
+    required String title,
+    String? why,
+    String? minimumAction,
+    required ScheduleCategory category,
+    required DateTime scheduledAt,
+  }) async {
+    final existing = await getSchedule(id);
+
+    // 기존 알림·백그라운드 작업·캘린더 이벤트 전부 정리
+    await NotificationService.instance.cancelAll(id);
+    await BackgroundService.cancelNaggingTask(id);
+    await CalendarService.instance.deleteEvent(existing?.calendarEventId);
+
+    await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(id)))
+        .write(ScheduleTableCompanion(
+      title: Value(title),
+      why: Value(why),
+      minimumAction: Value(minimumAction),
+      category: Value(category.name),
+      scheduledAt: Value(scheduledAt),
+      status: const Value('pending'),
+      naggingCount: const Value(0),
+      snoozedUntil: const Value(null),
+      calendarEventId: const Value(null),
+      updatedAt: Value(DateTime.now()),
+    ));
+
+    final entity = (await getSchedule(id))!;
+
+    // 새 알림·백그라운드 작업 등록
+    await NotificationService.instance.scheduleAll(entity);
+    await BackgroundService.registerNaggingTask(scheduleId: id);
+
+    // 캘린더 이벤트 재등록
+    final calendarEventId = await CalendarService.instance.addEvent(
+      title: entity.title,
+      scheduledAt: entity.scheduledAt,
+    );
+    if (calendarEventId != null) {
+      await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(id)))
+          .write(ScheduleTableCompanion(
+        calendarEventId: Value(calendarEventId),
+      ));
+    }
+  }
+
+  @override
   Future<ScheduleEntity> rescheduleSchedule(
       String id, DateTime newScheduledAt) async {
     // 기존 캘린더 이벤트 삭제
@@ -214,9 +263,12 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
         await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(row.id)))
             .write(ScheduleTableCompanion(
           status: const Value('missed'),
+          calendarEventId: const Value(null),
           updatedAt: Value(now),
         ));
         await NotificationService.instance.cancelAll(row.id);
+        // 놓친 시점에 캘린더 이벤트 삭제 — 재스케줄 시 중복 방지
+        await CalendarService.instance.deleteEvent(entity.calendarEventId);
       } else if (entity.status == ScheduleStatus.pending &&
           now.isAfter(entity.scheduledAt)) {
         await (_db.update(_db.scheduleTable)..where((t) => t.id.equals(row.id)))
